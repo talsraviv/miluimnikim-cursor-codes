@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Your Cursor Code</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/wired-elements@3.0.0-rc.6/lib/wired-elements-bundled.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Gloria Hallelujah', cursive;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background: #fef9e7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 2rem;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    wired-input {
+      width: 100%;
+      font-family: 'Gloria Hallelujah', cursive;
+      font-size: 1.1rem;
+      --wired-input-font-family: 'Gloria Hallelujah', cursive;
+    }
+    
+    wired-button {
+      font-family: 'Gloria Hallelujah', cursive;
+      font-size: 1.2rem;
+      padding: 10px 30px;
+      cursor: pointer;
+      background: #3498db;
+      --wired-button-font-family: 'Gloria Hallelujah', cursive;
+    }
+    
+    wired-button:hover {
+      background: #2980b9;
+    }
+    
+    #result {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      min-height: 60px;
+    }
+    
+    .success {
+      color: #27ae60;
+    }
+    
+    .error {
+      color: #c0392b;
+    }
+    
+    .code-url {
+      word-break: break-all;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff;
+      border: 2px dashed #3498db;
+    }
+    
+    .code-url a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    
+    .code-url a:hover {
+      text-decoration: underline;
+    }
+    
+    .loading {
+      color: #7f8c8d;
+    }
+    
+    .instructions {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Get Your Cursor Code</h1>
+    <p class="subtitle">Miluimnikim Workshop</p>
+    
+    <wired-card elevation="3" style="padding: 2rem;">
+      <div class="input-group">
+        <wired-input 
+          id="email" 
+          placeholder="Enter the email you registered with"
+          type="email"
+        ></wired-input>
+      </div>
+      
+      <wired-button id="submit" elevation="2">Get My Code</wired-button>
+      
+      <div id="result"></div>
+    </wired-card>
+  </div>
+
+  <script>
+    const emailInput = document.getElementById('email');
+    const submitBtn = document.getElementById('submit');
+    const result = document.getElementById('result');
+
+    async function lookup() {
+      const email = emailInput.value.trim();
+      
+      if (!email) {
+        result.innerHTML = '<p class="error">Please enter your email</p>';
+        return;
+      }
+      
+      result.innerHTML = '<p class="loading">Looking up...</p>';
+      
+      try {
+        const response = await fetch(`/api/lookup?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          result.innerHTML = `
+            <p class="success">Found it!</p>
+            <div class="code-url">
+              <a href="${data.url}" target="_blank">${data.url}</a>
+            </div>
+            <p class="instructions">Click the link above to redeem your Cursor credits</p>
+          `;
+        } else {
+          result.innerHTML = `
+            <p class="error">Email not found</p>
+            <p class="instructions">Make sure you're using the same email you registered with. If you're stuck, contact Tal.</p>
+          `;
+        }
+      } catch (err) {
+        result.innerHTML = '<p class="error">Something went wrong. Try again.</p>';
+      }
+    }
+
+    submitBtn.addEventListener('click', lookup);
+    emailInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') lookup();
+    });
+  </script>
+</body>
+</html>
